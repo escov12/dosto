@@ -6,7 +6,8 @@ Plataforma para conectar ciudadanos con eventos comunitarios y voluntariados.
 ## Instalación y uso
 
 ```bash
-npm install
+nvm use --lts
+pnpm install
 node server.js
 ```
 

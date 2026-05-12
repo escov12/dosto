@@ -1,684 +1,199 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ConectaComunidad</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --green: #2d6a4f;
-    --green-light: #52b788;
-    --green-pale: #d8f3dc;
-    --earth: #774936;
-    --sky: #e9f5db;
-    --ink: #1b1f23;
-    --muted: #6b7280;
-    --card: #ffffff;
-    --bg: #f5f0e8;
-    --border: #d4cfc6;
-    --danger: #dc2626;
-    --gold: #d97706;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
-
-  /* NAV */
-  nav {
-    background: var(--green);
-    padding: 0 2rem;
-    display: flex; align-items: center; justify-content: space-between;
-    height: 64px;
-    position: sticky; top: 0; z-index: 100;
-    box-shadow: 0 2px 12px rgba(0,0,0,.15);
-  }
-  .nav-brand { font-family: 'Fraunces', serif; font-size: 1.4rem; color: white; font-weight: 700; letter-spacing: -.5px; }
-  .nav-brand span { color: var(--green-light); }
-  .nav-actions { display: flex; gap: .75rem; align-items: center; }
-  .nav-user { color: var(--green-pale); font-size: .85rem; font-weight: 500; }
-  .btn { 
-    padding: .5rem 1.1rem; border-radius: 8px; border: none; cursor: pointer; 
-    font-family: 'DM Sans', sans-serif; font-size: .875rem; font-weight: 600; 
-    transition: all .15s ease;
-  }
-  .btn-outline { background: transparent; border: 1.5px solid white; color: white; }
-  .btn-outline:hover { background: white; color: var(--green); }
-  .btn-primary { background: var(--green-light); color: white; }
-  .btn-primary:hover { background: #40916c; }
-  .btn-danger { background: var(--danger); color: white; }
-  .btn-danger:hover { opacity: .85; }
-  .btn-gold { background: var(--gold); color: white; }
-  .btn-gold:hover { opacity: .85; }
-  .btn-sm { padding: .35rem .75rem; font-size: .8rem; }
-  .btn:disabled { opacity: .5; cursor: not-allowed; }
-
-  /* PAGES */
-  .page { display: none; }
-  .page.active { display: block; }
-
-  /* HERO */
-  .hero {
-    background: linear-gradient(135deg, var(--green) 0%, #40916c 60%, #52b788 100%);
-    padding: 4rem 2rem 5rem;
-    text-align: center;
-    position: relative; overflow: hidden;
-  }
-  .hero::before {
-    content: '🌿🌱🌳🌿🌱';
-    position: absolute; bottom: -10px; left: 0; right: 0;
-    font-size: 3rem; letter-spacing: 2rem; opacity: .15;
-  }
-  .hero h1 { font-family: 'Fraunces', serif; font-size: 3rem; color: white; font-weight: 900; line-height: 1.1; margin-bottom: .75rem; }
-  .hero p { color: var(--green-pale); font-size: 1.1rem; max-width: 520px; margin: 0 auto 2rem; }
-  .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-
-  /* MAIN CONTAINER */
-  .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
-
-  /* SECTION TITLE */
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-  .section-title { font-family: 'Fraunces', serif; font-size: 1.6rem; color: var(--green); }
-
-  /* FILTERS */
-  .filters { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
-  .filter-btn {
-    padding: .4rem 1rem; border-radius: 20px; border: 1.5px solid var(--border);
-    background: white; cursor: pointer; font-size: .85rem; font-weight: 500;
-    color: var(--muted); transition: all .15s;
-  }
-  .filter-btn.active, .filter-btn:hover { background: var(--green); color: white; border-color: var(--green); }
-
-  /* EVENTS GRID */
-  .events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
-  .event-card {
-    background: var(--card); border-radius: 14px; overflow: hidden;
-    border: 1px solid var(--border); transition: transform .2s, box-shadow .2s;
-    cursor: pointer;
-  }
-  .event-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,.1); }
-  .event-card-header {
-    background: linear-gradient(135deg, var(--green-pale), var(--sky));
-    padding: 1.5rem; text-align: center; font-size: 3rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .event-card-body { padding: 1.25rem; }
-  .event-category {
-    display: inline-block; padding: .2rem .7rem; border-radius: 20px;
-    background: var(--green-pale); color: var(--green); font-size: .75rem; font-weight: 600;
-    margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .03em;
-  }
-  .event-title { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: .5rem; line-height: 1.3; }
-  .event-meta { font-size: .82rem; color: var(--muted); margin-bottom: .3rem; }
-  .event-meta span { margin-right: .5rem; }
-  .event-attendees { font-size: .82rem; color: var(--green); font-weight: 600; margin-top: .5rem; }
-
-  /* MODAL */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
-    z-index: 200; align-items: center; justify-content: center; padding: 1rem;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: white; border-radius: 18px; max-width: 560px; width: 100%;
-    max-height: 90vh; overflow-y: auto;
-    box-shadow: 0 24px 64px rgba(0,0,0,.2);
-    animation: modalIn .2s ease;
-  }
-  @keyframes modalIn { from { transform: scale(.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  .modal-header {
-    background: linear-gradient(135deg, var(--green-pale), var(--sky));
-    padding: 2rem; text-align: center;
-    border-radius: 18px 18px 0 0; border-bottom: 1px solid var(--border);
-  }
-  .modal-header .emoji { font-size: 4rem; display: block; margin-bottom: .5rem; }
-  .modal-header h2 { font-family: 'Fraunces', serif; font-size: 1.5rem; color: var(--ink); }
-  .modal-body { padding: 1.75rem; }
-  .modal-body .detail-row { display: flex; gap: .75rem; margin-bottom: .75rem; align-items: flex-start; }
-  .modal-body .detail-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: .1rem; }
-  .modal-body .detail-text { font-size: .9rem; color: var(--ink); }
-  .modal-body .detail-label { font-size: .75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; }
-  .modal-desc { font-size: .95rem; color: #374151; line-height: 1.65; margin: 1rem 0; }
-  .modal-footer { padding: 1rem 1.75rem 1.75rem; display: flex; gap: .75rem; justify-content: flex-end; }
-
-  /* FORMS */
-  .form-page { min-height: calc(100vh - 64px); display: flex; align-items: center; justify-content: center; padding: 2rem; }
-  .form-card {
-    background: white; border-radius: 20px; padding: 2.5rem; width: 100%; max-width: 440px;
-    box-shadow: 0 8px 32px rgba(0,0,0,.08); border: 1px solid var(--border);
-  }
-  .form-card h2 { font-family: 'Fraunces', serif; font-size: 1.75rem; color: var(--green); margin-bottom: .35rem; }
-  .form-card p { color: var(--muted); font-size: .875rem; margin-bottom: 1.75rem; }
-  .form-group { margin-bottom: 1.1rem; }
-  .form-group label { display: block; font-size: .85rem; font-weight: 600; color: var(--ink); margin-bottom: .4rem; }
-  .form-group input, .form-group select, .form-group textarea {
-    width: 100%; padding: .65rem .9rem; border: 1.5px solid var(--border);
-    border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: .9rem;
-    background: #fafafa; color: var(--ink);
-    transition: border-color .15s, box-shadow .15s;
-  }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    outline: none; border-color: var(--green-light); box-shadow: 0 0 0 3px rgba(82,183,136,.15);
-    background: white;
-  }
-  .form-group textarea { resize: vertical; min-height: 90px; }
-  .form-submit { width: 100%; padding: .75rem; font-size: 1rem; border-radius: 10px; margin-top: .5rem; }
-  .form-alt { text-align: center; margin-top: 1.25rem; font-size: .875rem; color: var(--muted); }
-  .form-alt a { color: var(--green); font-weight: 600; cursor: pointer; text-decoration: none; }
-  .form-alt a:hover { text-decoration: underline; }
-  .error-msg { background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); padding: .65rem .9rem; border-radius: 8px; font-size: .85rem; margin-bottom: 1rem; display: none; }
-  .success-msg { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: .65rem .9rem; border-radius: 8px; font-size: .85rem; margin-bottom: 1rem; display: none; }
-
-  /* PUBLISH FORM */
-  .publish-container { max-width: 640px; margin: 0 auto; padding: 2rem; }
-  .publish-card { background: white; border-radius: 18px; padding: 2rem; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,.06); }
-
-  /* MY EVENTS */
-  .my-events-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
-  .my-event-card {
-    background: white; border-radius: 12px; padding: 1.25rem;
-    border: 1px solid var(--border); display: flex; gap: 1rem; align-items: center;
-  }
-  .my-event-emoji { font-size: 2.2rem; flex-shrink: 0; }
-  .my-event-info h4 { font-family: 'Fraunces', serif; font-size: 1rem; margin-bottom: .2rem; }
-  .my-event-info p { font-size: .8rem; color: var(--muted); }
-
-  /* EMPTY STATE */
-  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
-  .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
-  .empty-state p { font-size: .95rem; }
-
-  /* TOAST */
-  .toast {
-    position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem;
-    border-radius: 12px; font-weight: 600; font-size: .9rem;
-    z-index: 999; opacity: 0; transform: translateY(10px);
-    transition: all .3s ease; pointer-events: none; max-width: 320px;
-  }
-  .toast.show { opacity: 1; transform: translateY(0); }
-  .toast.success { background: #166534; color: white; }
-  .toast.error { background: var(--danger); color: white; }
-
-  /* TABS */
-  .tabs { display: flex; gap: .25rem; border-bottom: 2px solid var(--border); margin-bottom: 2rem; }
-  .tab-btn {
-    padding: .65rem 1.25rem; border: none; background: none; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: .9rem; font-weight: 600;
-    color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px;
-    transition: all .15s;
-  }
-  .tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
-
-  .role-toggle { display: flex; gap: .5rem; margin-bottom: 1rem; }
-  .role-btn { flex: 1; padding: .55rem; border: 1.5px solid var(--border); border-radius: 8px; background: white; cursor: pointer; font-size: .85rem; font-weight: 500; color: var(--muted); transition: all .15s; text-align: center; }
-  .role-btn.active { background: var(--green); color: white; border-color: var(--green); }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ConectaComunidad</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <script src="script.js"></script>
+  <!-- NAVBAR -->
+  <nav>
+    <div class="nav-brand">Conecta<span>Comunidad</span></div>
+    <div class="nav-actions">
+      <span class="nav-user" id="navUser"></span>
+      <button class="btn btn-outline" id="navLoginBtn" onclick="showPage('login')">Iniciar sesión</button>
+      <button class="btn btn-primary" id="navRegisterBtn" onclick="showPage('register')">Registrarse</button>
+      <button class="btn btn-outline" id="navMyEventsBtn" onclick="showPage('myevents')" style="display:none">Mis inscripciones</button>
+      <button class="btn btn-primary" id="navPublishBtn" onclick="showPage('publish')" style="display:none">+ Publicar evento</button>
+      <button class="btn btn-outline btn-sm" id="navLogoutBtn" onclick="logout()" style="display:none">Salir</button>
+    </div>
+  </nav>
 
-<!-- NAVBAR -->
-<nav>
-  <div class="nav-brand">Conecta<span>Comunidad</span></div>
-  <div class="nav-actions">
-    <span class="nav-user" id="navUser"></span>
-    <button class="btn btn-outline" id="navLoginBtn" onclick="showPage('login')">Iniciar sesión</button>
-    <button class="btn btn-primary" id="navRegisterBtn" onclick="showPage('register')">Registrarse</button>
-    <button class="btn btn-outline" id="navMyEventsBtn" onclick="showPage('myevents')" style="display:none">Mis inscripciones</button>
-    <button class="btn btn-primary" id="navPublishBtn" onclick="showPage('publish')" style="display:none">+ Publicar evento</button>
-    <button class="btn btn-outline btn-sm" id="navLogoutBtn" onclick="logout()" style="display:none">Salir</button>
-  </div>
-</nav>
-
-<!-- PAGE: HOME -->
-<div class="page active" id="page-home">
-  <div class="hero">
-    <h1>Haz la diferencia<br>en tu comunidad 🌱</h1>
-    <p>Descubre voluntariados y eventos sociales cerca de ti. Únete a quienes transforman Hermosillo.</p>
-    <div class="hero-btns">
-      <button class="btn btn-primary" onclick="scrollToEvents()">Explorar eventos</button>
-      <button class="btn btn-outline" onclick="showPage('register')">Quiero participar</button>
-    </div>
-  </div>
-  <div class="container" id="eventsSection">
-    <div class="section-header">
-      <h2 class="section-title">Eventos disponibles</h2>
-    </div>
-    <div class="filters" id="filtersBar">
-      <button class="filter-btn active" onclick="filterEvents('Todos', this)">🌐 Todos</button>
-      <button class="filter-btn" onclick="filterEvents('Medio Ambiente', this)">🌿 Medio Ambiente</button>
-      <button class="filter-btn" onclick="filterEvents('Animales', this)">🐾 Animales</button>
-      <button class="filter-btn" onclick="filterEvents('Educación', this)">📚 Educación</button>
-      <button class="filter-btn" onclick="filterEvents('Ayuda Social', this)">🍎 Ayuda Social</button>
-    </div>
-    <div class="events-grid" id="eventsGrid">
-      <div class="empty-state"><div class="icon">⏳</div><p>Cargando eventos...</p></div>
-    </div>
-  </div>
-</div>
-
-<!-- PAGE: LOGIN -->
-<div class="page" id="page-login">
-  <div class="form-page">
-    <div class="form-card">
-      <h2>Bienvenido de vuelta 👋</h2>
-      <p>Ingresa para ver tus inscripciones y más.</p>
-      <div class="error-msg" id="loginError"></div>
-      <div class="form-group">
-        <label>Correo electrónico</label>
-        <input type="email" id="loginEmail" placeholder="tu@correo.com">
+  <!-- PAGE: HOME -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <h1>Haz la diferencia<br>en tu comunidad 🌱</h1>
+      <p>Descubre voluntariados y eventos sociales cerca de ti. Únete a quienes transforman Hermosillo.</p>
+      <div class="hero-btns">
+        <button class="btn btn-primary" onclick="scrollToEvents()">Explorar eventos</button>
+        <button class="btn btn-outline" onclick="showPage('register')">Quiero participar</button>
       </div>
-      <div class="form-group">
-        <label>Contraseña</label>
-        <input type="password" id="loginPassword" placeholder="••••••••">
+    </div>
+    <div class="container" id="eventsSection">
+      <div class="section-header">
+        <h2 class="section-title">Eventos disponibles</h2>
       </div>
-      <button class="btn btn-primary form-submit" onclick="doLogin()">Iniciar sesión</button>
-      <div class="form-alt">¿No tienes cuenta? <a onclick="showPage('register')">Regístrate</a></div>
-      <div class="form-alt" style="margin-top:.5rem;font-size:.78rem;">
-        Demo: <strong>org@verde.mx</strong> / org123 (organizador) · <strong>ana@mail.com</strong> / user123
+      <div class="filters" id="filtersBar">
+        <button class="filter-btn active" onclick="filterEvents('Todos', this)">🌐 Todos</button>
+        <button class="filter-btn" onclick="filterEvents('Medio Ambiente', this)">🌿 Medio Ambiente</button>
+        <button class="filter-btn" onclick="filterEvents('Animales', this)">🐾 Animales</button>
+        <button class="filter-btn" onclick="filterEvents('Educación', this)">📚 Educación</button>
+        <button class="filter-btn" onclick="filterEvents('Ayuda Social', this)">🍎 Ayuda Social</button>
+      </div>
+      <div class="events-grid" id="eventsGrid">
+        <div class="empty-state"><div class="icon">⏳</div><p>Cargando eventos...</p></div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- PAGE: REGISTER -->
-<div class="page" id="page-register">
-  <div class="form-page">
-    <div class="form-card">
-      <h2>Únete a la comunidad 🌿</h2>
-      <p>Crea tu cuenta para inscribirte a eventos.</p>
-      <div class="error-msg" id="registerError"></div>
-      <div class="form-group">
-        <label>Tipo de cuenta</label>
-        <div class="role-toggle">
-          <div class="role-btn active" onclick="setRole('ciudadano', this)">👤 Ciudadano</div>
-          <div class="role-btn" onclick="setRole('organizador', this)">🏢 Organizador</div>
+  <!-- PAGE: LOGIN -->
+  <div class="page" id="page-login">
+    <div class="form-page">
+      <div class="form-card">
+        <h2>Bienvenido de vuelta 👋</h2>
+        <p>Ingresa para ver tus inscripciones y más.</p>
+        <div class="error-msg" id="loginError"></div>
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" id="loginEmail" placeholder="tu@correo.com">
         </div>
-        <input type="hidden" id="registerRole" value="ciudadano">
-      </div>
-      <div class="form-group">
-        <label>Nombre completo</label>
-        <input type="text" id="registerName" placeholder="Tu nombre">
-      </div>
-      <div class="form-group">
-        <label>Correo electrónico</label>
-        <input type="email" id="registerEmail" placeholder="tu@correo.com">
-      </div>
-      <div class="form-group">
-        <label>Contraseña</label>
-        <input type="password" id="registerPassword" placeholder="Mínimo 6 caracteres">
-      </div>
-      <button class="btn btn-primary form-submit" onclick="doRegister()">Crear cuenta</button>
-      <div class="form-alt">¿Ya tienes cuenta? <a onclick="showPage('login')">Inicia sesión</a></div>
-    </div>
-  </div>
-</div>
-
-<!-- PAGE: PUBLISH -->
-<div class="page" id="page-publish">
-  <div class="publish-container">
-    <h2 class="section-title" style="margin-bottom:1.5rem; margin-top:1rem;">📢 Publicar nuevo evento</h2>
-    <div class="publish-card">
-      <div class="error-msg" id="publishError"></div>
-      <div class="success-msg" id="publishSuccess"></div>
-      <div class="form-group">
-        <label>Título del evento</label>
-        <input type="text" id="pubTitle" placeholder="Ej: Campaña de reforestación">
-      </div>
-      <div class="form-group">
-        <label>Descripción</label>
-        <textarea id="pubDesc" placeholder="Cuéntanos de qué trata el evento, qué necesitan los voluntarios..."></textarea>
-      </div>
-      <div class="form-group">
-        <label>Categoría</label>
-        <select id="pubCategory">
-          <option value="">Selecciona una categoría</option>
-          <option>Medio Ambiente</option>
-          <option>Animales</option>
-          <option>Educación</option>
-          <option>Ayuda Social</option>
-          <option>Cultura</option>
-          <option>Salud</option>
-          <option>Otro</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Ubicación</label>
-        <input type="text" id="pubLocation" placeholder="Ej: Parque Madero, Hermosillo">
-      </div>
-      <div class="form-group">
-        <label>Fecha</label>
-        <input type="date" id="pubDate">
-      </div>
-      <div class="form-group">
-        <label>Emoji representativo</label>
-        <input type="text" id="pubEmoji" placeholder="🌱" maxlength="4">
-      </div>
-      <button class="btn btn-gold form-submit" onclick="doPublish()">Publicar evento</button>
-    </div>
-  </div>
-</div>
-
-<!-- PAGE: MY EVENTS -->
-<div class="page" id="page-myevents">
-  <div class="container">
-    <h2 class="section-title" style="margin-bottom:1.5rem; margin-top:1rem;">🗓️ Mis inscripciones</h2>
-    <div id="myEventsList"></div>
-  </div>
-</div>
-
-<!-- EVENT DETAIL MODAL (HU-06) -->
-<div class="modal-overlay" id="eventModal" onclick="closeModal(event)">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="emoji" id="modalEmoji">🌱</span>
-      <h2 id="modalTitle"></h2>
-      <span class="event-category" id="modalCategory"></span>
-    </div>
-    <div class="modal-body">
-      <p class="modal-desc" id="modalDesc"></p>
-      <div class="detail-row">
-        <span class="detail-icon">📍</span>
-        <div><div class="detail-label">Ubicación</div><div class="detail-text" id="modalLocation"></div></div>
-      </div>
-      <div class="detail-row">
-        <span class="detail-icon">📅</span>
-        <div><div class="detail-label">Fecha</div><div class="detail-text" id="modalDate"></div></div>
-      </div>
-      <div class="detail-row">
-        <span class="detail-icon">🏢</span>
-        <div><div class="detail-label">Organiza</div><div class="detail-text" id="modalOrganizer"></div></div>
-      </div>
-      <div class="detail-row">
-        <span class="detail-icon">👥</span>
-        <div><div class="detail-label">Inscritos</div><div class="detail-text" id="modalAttendees"></div></div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="document.getElementById('eventModal').classList.remove('open')">Cerrar</button>
-      <button class="btn btn-primary" id="modalRegisterBtn" onclick="registerToEvent()">Inscribirme</button>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<script>
-const API = 'http://localhost:3000/api';
-let currentUser = null;
-let currentEventId = null;
-let currentFilter = 'Todos';
-
-// Token management
-function getToken() { return localStorage.getItem('cc_token'); }
-function saveSession(token, user) {
-  localStorage.setItem('cc_token', token);
-  localStorage.setItem('cc_user', JSON.stringify(user));
-  currentUser = user;
-  updateNav();
-}
-function logout() {
-  localStorage.removeItem('cc_token');
-  localStorage.removeItem('cc_user');
-  currentUser = null;
-  updateNav();
-  showPage('home');
-  toast('Sesión cerrada', 'success');
-}
-
-function updateNav() {
-  const loggedIn = !!currentUser;
-  document.getElementById('navLoginBtn').style.display = loggedIn ? 'none' : '';
-  document.getElementById('navRegisterBtn').style.display = loggedIn ? 'none' : '';
-  document.getElementById('navLogoutBtn').style.display = loggedIn ? '' : 'none';
-  document.getElementById('navUser').textContent = loggedIn ? `Hola, ${currentUser.name.split(' ')[0]}` : '';
-  document.getElementById('navMyEventsBtn').style.display = loggedIn && currentUser.role === 'ciudadano' ? '' : 'none';
-  document.getElementById('navPublishBtn').style.display = loggedIn && currentUser.role === 'organizador' ? '' : 'none';
-}
-
-// Page navigation
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  if (name === 'home') loadEvents();
-  if (name === 'myevents') loadMyEvents();
-}
-
-function scrollToEvents() {
-  document.getElementById('eventsSection').scrollIntoView({ behavior: 'smooth' });
-}
-
-// Toast
-function toast(msg, type = 'success') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast ${type} show`;
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-// HU-03: Load events
-async function loadEvents(category = currentFilter) {
-  const grid = document.getElementById('eventsGrid');
-  grid.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>Cargando...</p></div>';
-  try {
-    const url = category && category !== 'Todos' ? `${API}/events?category=${encodeURIComponent(category)}` : `${API}/events`;
-    const res = await fetch(url);
-    const events = await res.json();
-    if (!events.length) {
-      grid.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>No hay eventos en esta categoría aún.</p></div>';
-      return;
-    }
-    grid.innerHTML = events.map(e => `
-      <div class="event-card" onclick="openEventModal(${e.id})">
-        <div class="event-card-header">${e.image_emoji || '📅'}</div>
-        <div class="event-card-body">
-          <span class="event-category">${e.category}</span>
-          <div class="event-title">${e.title}</div>
-          <div class="event-meta"><span>📍</span>${e.location}</div>
-          <div class="event-meta"><span>📅</span>${formatDate(e.date)}</div>
-          <div class="event-attendees">👥 ${e.attendees} inscritos</div>
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" id="loginPassword" placeholder="••••••••">
+        </div>
+        <button class="btn btn-primary form-submit" onclick="doLogin()">Iniciar sesión</button>
+        <div class="form-alt">¿No tienes cuenta? <a onclick="showPage('register')">Regístrate</a></div>
+        <div class="form-alt" style="margin-top:.5rem;font-size:.78rem;">
+          Demo: <strong>org@verde.mx</strong> / org123 (organizador) · <strong>ana@mail.com</strong> / user123
         </div>
       </div>
-    `).join('');
-  } catch (e) {
-    grid.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>No se pudo conectar al servidor. ¿Está corriendo?</p></div>';
-  }
-}
+    </div>
+  </div>
 
-function filterEvents(category, btn) {
-  currentFilter = category;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  loadEvents(category);
-}
+  <!-- PAGE: REGISTER -->
+  <div class="page" id="page-register">
+    <div class="form-page">
+      <div class="form-card">
+        <h2>Únete a la comunidad 🌿</h2>
+        <p>Crea tu cuenta para inscribirte a eventos.</p>
+        <div class="error-msg" id="registerError"></div>
+        <div class="form-group">
+          <label>Tipo de cuenta</label>
+          <div class="role-toggle">
+            <div class="role-btn active" onclick="setRole('ciudadano', this)">👤 Ciudadano</div>
+            <div class="role-btn" onclick="setRole('organizador', this)">🏢 Organizador</div>
+          </div>
+          <input type="hidden" id="registerRole" value="ciudadano">
+        </div>
+        <div class="form-group">
+          <label>Nombre completo</label>
+          <input type="text" id="registerName" placeholder="Tu nombre">
+        </div>
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" id="registerEmail" placeholder="tu@correo.com">
+        </div>
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" id="registerPassword" placeholder="Mínimo 6 caracteres">
+        </div>
+        <button class="btn btn-primary form-submit" onclick="doRegister()">Crear cuenta</button>
+        <div class="form-alt">¿Ya tienes cuenta? <a onclick="showPage('login')">Inicia sesión</a></div>
+      </div>
+    </div>
+  </div>
 
-// HU-06: Event detail modal
-async function openEventModal(id) {
-  currentEventId = id;
-  try {
-    const res = await fetch(`${API}/events/${id}`);
-    const e = await res.json();
-    document.getElementById('modalEmoji').textContent = e.image_emoji || '📅';
-    document.getElementById('modalTitle').textContent = e.title;
-    document.getElementById('modalCategory').textContent = e.category;
-    document.getElementById('modalDesc').textContent = e.description;
-    document.getElementById('modalLocation').textContent = e.location;
-    document.getElementById('modalDate').textContent = formatDate(e.date);
-    document.getElementById('modalOrganizer').textContent = e.organizer_name;
-    document.getElementById('modalAttendees').textContent = `${e.attendees} personas inscritas`;
-    
-    const regBtn = document.getElementById('modalRegisterBtn');
-    if (!currentUser) {
-      regBtn.textContent = 'Inicia sesión para inscribirte';
-      regBtn.onclick = () => { closeModal(); showPage('login'); };
-    } else if (currentUser.role === 'organizador') {
-      regBtn.style.display = 'none';
-    } else {
-      regBtn.style.display = '';
-      // Check if already registered
-      const regRes = await fetch(`${API}/events/${id}/registered`, { headers: { Authorization: `Bearer ${getToken()}` }});
-      const { registered } = await regRes.json();
-      if (registered) {
-        regBtn.textContent = '✅ Ya inscrito';
-        regBtn.disabled = true;
-      } else {
-        regBtn.textContent = 'Inscribirme';
-        regBtn.disabled = false;
-        regBtn.onclick = registerToEvent;
-      }
-    }
-    document.getElementById('eventModal').classList.add('open');
-  } catch {
-    toast('Error al cargar el evento', 'error');
-  }
-}
+  <!-- PAGE: PUBLISH -->
+  <div class="page" id="page-publish">
+    <div class="publish-container">
+      <h2 class="section-title" style="margin-bottom:1.5rem; margin-top:1rem;">📢 Publicar nuevo evento</h2>
+      <div class="publish-card">
+        <div class="error-msg" id="publishError"></div>
+        <div class="success-msg" id="publishSuccess"></div>
+        <div class="form-group">
+          <label>Título del evento</label>
+          <input type="text" id="pubTitle" placeholder="Ej: Campaña de reforestación">
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea id="pubDesc" placeholder="Cuéntanos de qué trata el evento, qué necesitan los voluntarios..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Categoría</label>
+          <select id="pubCategory">
+            <option value="">Selecciona una categoría</option>
+            <option>Medio Ambiente</option>
+            <option>Animales</option>
+            <option>Educación</option>
+            <option>Ayuda Social</option>
+            <option>Cultura</option>
+            <option>Salud</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Ubicación</label>
+          <input type="text" id="pubLocation" placeholder="Ej: Parque Madero, Hermosillo">
+        </div>
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" id="pubDate">
+        </div>
+        <div class="form-group">
+          <label>Emoji representativo</label>
+          <input type="text" id="pubEmoji" placeholder="🌱" maxlength="4">
+        </div>
+        <button class="btn btn-gold form-submit" onclick="doPublish()">Publicar evento</button>
+      </div>
+    </div>
+  </div>
 
-function closeModal(e) {
-  if (!e || e.target.id === 'eventModal') {
-    document.getElementById('eventModal').classList.remove('open');
-  }
-}
+  <!-- PAGE: MY EVENTS -->
+  <div class="page" id="page-myevents">
+    <div class="container">
+      <h2 class="section-title" style="margin-bottom:1.5rem; margin-top:1rem;">🗓️ Mis inscripciones</h2>
+      <div id="myEventsList"></div>
+    </div>
+  </div>
 
-// HU-07: Register to event
-async function registerToEvent() {
-  if (!currentUser) { showPage('login'); return; }
-  const btn = document.getElementById('modalRegisterBtn');
-  btn.disabled = true;
-  btn.textContent = 'Procesando...';
-  try {
-    const res = await fetch(`${API}/events/${currentEventId}/register`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${getToken()}` }
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
-    btn.textContent = '✅ Ya inscrito';
-    toast('¡Inscripción exitosa! Te esperamos 🎉', 'success');
-    loadEvents();
-    // Refresh attendees count
-    const upd = await fetch(`${API}/events/${currentEventId}`);
-    const ev = await upd.json();
-    document.getElementById('modalAttendees').textContent = `${ev.attendees} personas inscritas`;
-  } catch (err) {
-    toast(err.message, 'error');
-    btn.disabled = false;
-    btn.textContent = 'Inscribirme';
-  }
-}
-
-// HU-01: Register
-function setRole(role, el) {
-  document.getElementById('registerRole').value = role;
-  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-}
-
-async function doRegister() {
-  const name = document.getElementById('registerName').value.trim();
-  const email = document.getElementById('registerEmail').value.trim();
-  const password = document.getElementById('registerPassword').value;
-  const role = document.getElementById('registerRole').value;
-  const err = document.getElementById('registerError');
-  err.style.display = 'none';
-  if (!name || !email || !password) { err.textContent = 'Completa todos los campos.'; err.style.display = 'block'; return; }
-  if (password.length < 6) { err.textContent = 'La contraseña debe tener al menos 6 caracteres.'; err.style.display = 'block'; return; }
-  try {
-    const res = await fetch(`${API}/register`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, role })
-    });
-    const data = await res.json();
-    if (!res.ok) { err.textContent = data.error; err.style.display = 'block'; return; }
-    saveSession(data.token, data.user);
-    toast(`¡Bienvenido, ${data.user.name.split(' ')[0]}! 🌱`, 'success');
-    showPage('home');
-  } catch { err.textContent = 'Error de conexión.'; err.style.display = 'block'; }
-}
-
-// HU-02: Login
-async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPassword').value;
-  const err = document.getElementById('loginError');
-  err.style.display = 'none';
-  try {
-    const res = await fetch(`${API}/login`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    if (!res.ok) { err.textContent = data.error; err.style.display = 'block'; return; }
-    saveSession(data.token, data.user);
-    toast(`¡Hola de nuevo, ${data.user.name.split(' ')[0]}! 👋`, 'success');
-    showPage('home');
-  } catch { err.textContent = 'Error de conexión.'; err.style.display = 'block'; }
-}
-
-// HU-08: Publish event
-async function doPublish() {
-  const title = document.getElementById('pubTitle').value.trim();
-  const description = document.getElementById('pubDesc').value.trim();
-  const category = document.getElementById('pubCategory').value;
-  const location = document.getElementById('pubLocation').value.trim();
-  const date = document.getElementById('pubDate').value;
-  const image_emoji = document.getElementById('pubEmoji').value.trim() || '📅';
-  const err = document.getElementById('publishError');
-  const suc = document.getElementById('publishSuccess');
-  err.style.display = 'none'; suc.style.display = 'none';
-  if (!title || !description || !category || !location || !date) {
-    err.textContent = 'Por favor completa todos los campos.'; err.style.display = 'block'; return;
-  }
-  try {
-    const res = await fetch(`${API}/events`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
-      body: JSON.stringify({ title, description, category, location, date, image_emoji })
-    });
-    const data = await res.json();
-    if (!res.ok) { err.textContent = data.error; err.style.display = 'block'; return; }
-    suc.textContent = '¡Evento publicado exitosamente! Ya aparece en el listado.'; suc.style.display = 'block';
-    ['pubTitle','pubDesc','pubLocation','pubDate','pubEmoji'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('pubCategory').value = '';
-    toast('Evento publicado 🎉', 'success');
-  } catch { err.textContent = 'Error de conexión.'; err.style.display = 'block'; }
-}
-
-// My registrations
-async function loadMyEvents() {
-  const container = document.getElementById('myEventsList');
-  container.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>Cargando...</p></div>';
-  if (!currentUser) { container.innerHTML = '<div class="empty-state"><div class="icon">🔒</div><p>Inicia sesión para ver tus inscripciones.</p></div>'; return; }
-  try {
-    const res = await fetch(`${API}/my-registrations`, { headers: { Authorization: `Bearer ${getToken()}` }});
-    const events = await res.json();
-    if (!events.length) {
-      container.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>Aún no te has inscrito a ningún evento. <a href="#" onclick="showPage(\'home\')">¡Explora los disponibles!</a></p></div>';
-      return;
-    }
-    container.innerHTML = `<div class="my-events-list">${events.map(e => `
-      <div class="my-event-card" onclick="openEventModal(${e.id})" style="cursor:pointer">
-        <div class="my-event-emoji">${e.image_emoji || '📅'}</div>
-        <div class="my-event-info">
-          <h4>${e.title}</h4>
-          <p>📍 ${e.location}</p>
-          <p>📅 ${formatDate(e.date)}</p>
+  <!-- EVENT DETAIL MODAL (HU-06) -->
+  <div class="modal-overlay" id="eventModal" onclick="closeModal(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="emoji" id="modalEmoji">🌱</span>
+        <h2 id="modalTitle"></h2>
+        <span class="event-category" id="modalCategory"></span>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc" id="modalDesc"></p>
+        <div class="detail-row">
+          <span class="detail-icon">📍</span>
+          <div><div class="detail-label">Ubicación</div><div class="detail-text" id="modalLocation"></div></div>
+        </div>
+        <div class="detail-row">
+          <span class="detail-icon">📅</span>
+          <div><div class="detail-label">Fecha</div><div class="detail-text" id="modalDate"></div></div>
+        </div>
+        <div class="detail-row">
+          <span class="detail-icon">🏢</span>
+          <div><div class="detail-label">Organiza</div><div class="detail-text" id="modalOrganizer"></div></div>
+        </div>
+        <div class="detail-row">
+          <span class="detail-icon">👥</span>
+          <div><div class="detail-label">Inscritos</div><div class="detail-text" id="modalAttendees"></div></div>
         </div>
       </div>
-    `).join('')}</div>`;
-  } catch { container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error al cargar.</p></div>'; }
-}
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="document.getElementById('eventModal').classList.remove('open')">Cerrar</button>
+        <button class="btn btn-primary" id="modalRegisterBtn" onclick="registerToEvent()">Inscribirme</button>
+      </div>
+    </div>
+  </div>
 
-function formatDate(dateStr) {
-  const d = new Date(dateStr + 'T12:00:00');
-  return d.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-}
-
-// Init
-window.addEventListener('load', () => {
-  const stored = localStorage.getItem('cc_user');
-  if (stored) currentUser = JSON.parse(stored);
-  updateNav();
-  loadEvents();
-});
-</script>
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
 </body>
 </html>
